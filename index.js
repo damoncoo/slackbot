@@ -10,7 +10,8 @@ let config = yaml.parse(file)
 // Add a bot https://my.slack.com/services/new/bot and put the token 
 let bot = new SlackBot({
  token: config.bot.token,
- name: config.bot.name
+ name: config.bot.name,
+ proxy: process.env.http_proxy
 });
 
 bot.on('start', function () {
