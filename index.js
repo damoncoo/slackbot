@@ -20,10 +20,10 @@ bot.on('start', function () {
 
 bot.on('message', async function (data) {
  console.log(data)
- try {
-  let response = await axios.get(config.bot.url, data)
-  bot.postMessageToChannel(config.channels.posted, response.data);
- } catch (error) {
-  console.log(error)
- }
+ // try {
+ //  let response = await axios.get(config.bot.url, data)
+ //  bot.postMessageToChannel(config.channels.posted, response.data);
+ // } catch (error) {
+ //  console.log(error)
+ // }
 });

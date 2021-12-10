@@ -1,3 +1,5 @@
 
 conf.yml
-node_moudules
+node_modules
+yarn.lock
+package-lock.json
