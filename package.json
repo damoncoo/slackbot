@@ -1,0 +1,17 @@
+{
+  "name": "slack_bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.24.0",
+    "crypto-js": "^4.1.1",
+    "slackbots": "git+https://github.com/damoncoo/slack-bot-api.git#master",
+    "yaml": "^1.10.2"
+  }
+}

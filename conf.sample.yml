@@ -1,0 +1,10 @@
+proxy: http://localhost:3128
+
+bot:
+  token: xoxb-xxx
+  name: yi
+  url: http://localhost:8081
+
+user: 
+  username: "xxx"
+  password: "xxx"
