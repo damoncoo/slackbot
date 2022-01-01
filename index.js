@@ -11,19 +11,45 @@ let config = yaml.parse(file)
 let bot = new SlackBot({
  token: config.bot.token,
  name: config.bot.name,
- proxy: process.env.http_proxy
+ proxy: config.proxy
 });
 
-bot.on('start', function () {
- bot.postMessageToChannel(config.channels.notified, 'I am working right now!');
-});
+bot.on('start', function () {});
 
 bot.on('message', async function (data) {
- console.log(data)
- // try {
- //  let response = await axios.get(config.bot.url, data)
- //  bot.postMessageToChannel(config.channels.posted, response.data);
- // } catch (error) {
- //  console.log(error)
- // }
+ let parsed = parseMessage(data)
+ if (parsed && parsed.isAtMe && parsed.message != null) {
+  sendMessageTo(data.channel, `<@${data.user}> `+ parsed.message, data.ts)
+ }
 });
+
+let NONE = 0
+let SMS = 1
+
+function parseMessage(message) {
+
+ let MeID = `<@${bot.self.id}> `
+ let text = message.text
+ if (text == null) {
+  return {
+   isAtMe: false,
+   command: NONE,
+   message: null
+  }
+ }
+ let isAtMe = text.startsWith(MeID)
+ let rest = text.replace(MeID, '')
+ return {
+  isAtMe: isAtMe,
+  message: rest,
+  command: NONE
+ }
+}
+
+async function sendMessageTo(channel, message, thread) {
+ bot.postMessage(channel, message, {
+  thread_ts: thread
+ }, (res) => {
+  console.log(res)
+ })
+}
