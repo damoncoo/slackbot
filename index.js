@@ -25,7 +25,7 @@ bot.on('message', function (data) {
     try {
         let res = parseMessage(message)
         if (res.isAtMe && res.command == SMS) {
-            code.fetchCode("uk", res.ending, config.user.username, config.user.password, config.proxy).then((text) => {
+            code.fetchCode("uk", res.parameters.ending, config.user.username, config.user.password, config.proxy).then((text) => {
                 sendMessageTo(message.channel, `<@${message.user}> ` + text, message.ts);
             }).catch((err) => {
                 sendMessageTo(message.channel, `<@${message.user}> ` + err.message, message.ts);
@@ -70,6 +70,9 @@ function parseMessage(message) {
     } else if (rest == "sms") {
         isSMS = true
     }
+
+    console.log(ending)
+
     return {
         isAtMe: isAtMe,
         command: isSMS ? SMS : NONE,
