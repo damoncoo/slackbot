@@ -46,12 +46,12 @@ async function sendMessageTo(channel, message, thread) {
     });
 }
 
-let MeID = '<@U02NT086QHE> '
 let SMS = 1
 let NONE = 0
 
 function parseMessage(message) {
-
+        
+    let MeID = `<@${bot.self.id}> `
     let text = message.text
     if (text == null) {
         return {
