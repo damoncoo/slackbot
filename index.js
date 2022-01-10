@@ -73,15 +73,6 @@ function parseMessage(message) {
         entity = results.groups.entity || "msb"
     }
     
-    // if (rest.startsWith('sms/')) {
-    //     isSMS = true
-    //     ending = rest.replace('sms/', '')
-    // } else if (rest == "sms") {
-    //     isSMS = true
-    // }
-
-    console.log(ending)
-
     return {
         isAtMe: isAtMe,
         command: isSMS ? SMS : NONE,

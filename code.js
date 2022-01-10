@@ -84,10 +84,6 @@ function analyzeCode(jsonData) {
 }
 
 function getTime(result) {
-    // let DateTime = result.DateTime
-    // if (DateTime != null) {
-    //     return DateTime
-    // }
     let _indextime = Number(result._indextime) * 1000
     let d = new Date(_indextime)
     return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()} ${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`
