@@ -25,7 +25,7 @@ bot.on('message', function (data) {
     try {
         let res = parseMessage(message)
         if (res.isAtMe && res.command == SMS) {
-            code.fetchCode("uk", res.parameters.ending, config.user.username, config.user.password, config.proxy).then((text) => {
+            code.fetchCode(res.parameters.entity, res.parameters.ending, config.user.username, config.user.password, config.proxy).then((text) => {
                 sendMessageTo(message.channel, `<@${message.user}> ` + text, message.ts);
             }).catch((err) => {
                 sendMessageTo(message.channel, `<@${message.user}> ` + err.message, message.ts);
@@ -50,7 +50,7 @@ let SMS = 1
 let NONE = 0
 
 function parseMessage(message) {
-        
+
     let MeID = `<@${bot.self.id}> `
     let text = message.text
     if (text == null) {
@@ -63,13 +63,22 @@ function parseMessage(message) {
     let rest = text.replace(MeID, '')
     let isSMS = false
     let ending = ""
+    let entity = "msb"
 
-    if (rest.startsWith('sms/')) {
+    let rg = /((?<entity>uk|msb)\/)?sms(\/(?<ending>[0-9]{4}))?/
+    if (rg.test(rest)) {
         isSMS = true
-        ending = rest.replace('sms/', '')
-    } else if (rest == "sms") {
-        isSMS = true
+        let results = rest.match(rg)
+        ending = results.groups.ending || "0000"
+        entity = results.groups.entity || "msb"
     }
+    
+    // if (rest.startsWith('sms/')) {
+    //     isSMS = true
+    //     ending = rest.replace('sms/', '')
+    // } else if (rest == "sms") {
+    //     isSMS = true
+    // }
 
     console.log(ending)
 
@@ -77,7 +86,8 @@ function parseMessage(message) {
         isAtMe: isAtMe,
         command: isSMS ? SMS : NONE,
         parameters: {
-            ending: ending
+            ending: ending,
+            entity: entity
         }
     }
 }

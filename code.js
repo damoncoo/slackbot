@@ -2,28 +2,40 @@ const request = require('request');
 const Vow = require("Vow")
 const CryptoJS = require("crypto-js")
 
-async function fetchCode(project, ending, user, password, proxy) {
+let entityMapping = {
+    "uk": "uk",
+    "msb": "uk"
+}
+
+function searchMapping(phoneEnding, entity) {
+    if (entity == "msb") {
+        return `search index=*mAuth* "List=*${phoneEnding}" Text="*"  | rex field=_raw "(?ms)^(?P<DateTime>\\d+\\-\\d+\\-\\d+\\s+\\d+:\\d+:\\d+\\.\\d+)" | rex field=_raw "^(?:[^\\]\\n]*\\])*\\s+\\w+=(?P<Number>\\+\\d+)"`
+    } else if (entity == "uk") {
+        return `search index = digital_dsp_ukrb_transmit_raw hsbc_dsp_u31488.sms Text=* "List=*${phoneEnding}"`
+    }
+}
+
+async function fetchCode(entity, ending, user, password, proxy) {
 
     let phoneEnding = "0000"
     if (ending != null) {
         phoneEnding = ending
     }
 
-    let pj = "uk"
-    if (project != null) {
-        pj = project
-    }
+    let en = entity || "msb"
+    let pj = entityMapping[en]
+    let search = searchMapping(phoneEnding, en)
 
     let url = `https://digital-search.dtme-splunk.euw1.dev.aws.cloud.hsbc:8089/servicesNS/${user}/dsp_${pj}/search/jobs`
     let data = {
         url: url,
         proxy: proxy,
         form: {
-            "search": `search index=*mAuth* "List=*${phoneEnding}" Text="*"  | rex field=_raw "(?ms)^(?P<DateTime>\\d+\\-\\d+\\-\\d+\\s+\\d+:\\d+:\\d+\\.\\d+)" | rex field=_raw "^(?:[^\\]\\n]*\\])*\\s+\\w+=(?P<Number>\\+\\d+)"`,
+            "search": search,
             "exec_mode": "oneshot",
             "output_mode": "json",
             "id": `dsp_${pj}${user}`,
-            "earliest_time": "-15m"
+            "earliest_time": "-60m"
         },
         auth: {
             user: user,
@@ -57,7 +69,7 @@ function analyzeCode(jsonData) {
     if (results.length > 0) {
         let found = []
         for (let result of results) {
-            let message = process(result.Text, result.DateTime, result.Number);
+            let message = process(result.Text, getTime(result), getNumber(result));
             if (message != null) {
                 found.push(message)
             }
@@ -69,6 +81,31 @@ function analyzeCode(jsonData) {
     } else {
         throw new Error("No results found")
     }
+}
+
+function getTime(result) {
+    // let DateTime = result.DateTime
+    // if (DateTime != null) {
+    //     return DateTime
+    // }
+    let _indextime = Number(result._indextime) * 1000
+    let d = new Date(_indextime)
+    return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()} ${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`
+}
+
+function getNumber(result) {
+    let Number = result.Number
+    if (Number != null) {
+        return Number
+    }
+    let _raw = result._raw || ''
+    let phoneR = /(?<=(List=))\+[0-9]{1,}/
+    let results = _raw.match(phoneR)
+    try {
+        Number = results[0] 
+    } catch (error) {
+    }
+    return Number
 }
 
 function process(text, time, number) {
