@@ -13,6 +13,7 @@ function searchMapping(phoneEnding, entity) {
     } else if (entity == "uk") {
         return `search index = digital_dsp_ukrb_transmit_raw hsbc_dsp_u31488.sms Text=* "List=*${phoneEnding}"`
     }
+    return `search Text=* "List=*${phoneEnding}"`
 }
 
 async function fetchCode(entity, ending, user, password, proxy) {

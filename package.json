@@ -13,5 +13,8 @@
     "crypto-js": "^4.1.1",
     "slackbots": "git+https://github.com/damoncoo/slack-bot-api.git#master",
     "yaml": "^1.10.2"
+  },
+  "engines": {
+    "node": ">=14.0"
   }
 }
