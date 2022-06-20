@@ -6,6 +6,12 @@ const code = require('./code');
 let file = fs.readFileSync('conf.yml', 'utf8')
 let config = yaml.parse(file)
 
+function log(message, ...options) {
+    if (config.log) {
+        console.log(message, ...options)
+    }
+}
+
 // create a bot
 // Add a bot https://my.slack.com/services/new/bot and put the token 
 let bot = new SlackBot({
@@ -15,11 +21,12 @@ let bot = new SlackBot({
 });
 
 bot.on('start', function () {
-    
+
 });
 
 bot.on('message', function (data) {
-    console.log(data)
+
+    log(data)
 
     let message = data
     try {
@@ -33,7 +40,7 @@ bot.on('message', function (data) {
         }
 
     } catch (error) {
-        console.log(error)
+        log(error)
     }
 });
 
@@ -42,7 +49,7 @@ async function sendMessageTo(channel, message, thread) {
     bot.postMessage(channel, message, {
         thread_ts: thread
     }, (res) => {
-        console.log(res)
+        log(res)
     });
 }
 
@@ -63,16 +70,16 @@ function parseMessage(message) {
     let rest = text.replace(MeID, '')
     let isSMS = false
     let ending = ""
-    let entity = "msb"
+    let entity = config.default
 
-    let rg = /((?<entity>uk|msb)\/)?sms(\/(?<ending>[0-9]{4}))?/
+    let rg = /((?<entity>[a-z]{2,})\/)?sms(\/(?<ending>[0-9]{4}))?/
     if (rg.test(rest)) {
         isSMS = true
         let results = rest.match(rg)
         ending = results.groups.ending || "0000"
-        entity = results.groups.entity || "msb"
+        entity = results.groups.entity || config.default
     }
-    
+
     return {
         isAtMe: isAtMe,
         command: isSMS ? SMS : NONE,
