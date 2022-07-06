@@ -7,3 +7,7 @@ bot:
 user: 
   username: "xxx"
   password: "xxx"
+  
+log: false
+
+default: msb
