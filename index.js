@@ -1,7 +1,9 @@
 const SlackBot = require('slackbots');
 const yaml = require('yaml')
-const fs = require('fs');
 const code = require('./code');
+const fs = require('fs')
+const axios = require('axios').default;
+const FormData = require("form-data");
 
 let file = fs.readFileSync('conf.yml', 'utf8')
 let config = yaml.parse(file)
@@ -87,5 +89,22 @@ function parseMessage(message) {
             ending: ending,
             entity: entity
         }
+    }
+}
+
+async function sendFileToUser(token, channelId, file) {
+
+    const form = new FormData();
+    form.append("token", token);
+    form.append("channels", channelId);
+    form.append("file", fs.createReadStream(file), 'Upload By Bot');
+
+    try {
+        const res = await axios.post("https://slack.com/api/files.upload", form, {
+            headers: form.getHeaders(),
+        });
+        log(res)
+    } catch (err) {
+        log(err)
     }
 }
